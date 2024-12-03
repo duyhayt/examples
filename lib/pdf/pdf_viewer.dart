@@ -3,11 +3,9 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_box_transform/flutter_box_transform.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:testkey/pdf/models/coordinate_model.dart';
-import 'package:testkey/pdf/widgets/corner_handler_widget.dart';
-import 'package:testkey/pdf/widgets/decorated_box_widget.dart';
+import 'package:testkey/pdf/widgets/transformable_box_widget.dart';
 
 class PdfViewer extends StatefulWidget {
   const PdfViewer({super.key});
@@ -101,7 +99,11 @@ class _PdfViewerState extends State<PdfViewer> {
                   onPageChanged: (_) => setState(() {}),
                   onZoomLevelChanged: (_) => setState(() {}),
                 ),
-                _buildBox(),
+                TransformableBoxWidget(
+                    box: box,
+                    zoomLevel: _pdfViewerController.zoomLevel,
+                    scrollOffset: _pdfViewerController.scrollOffset,
+                    onBoxChanged: (box) => setState(() => this.box = box)),
               ],
             ),
       bottomNavigationBar: BottomAppBar(
@@ -127,39 +129,6 @@ class _PdfViewerState extends State<PdfViewer> {
         onPressed: _uploadPdf,
         child: const Icon(Icons.add),
       ),
-    );
-  }
-
-  Widget _buildBox() {
-    return TransformableBox(
-      rect: Rect.fromLTWH(
-        (box.x - _pdfViewerController.scrollOffset.dx) *
-            _pdfViewerController.zoomLevel,
-        (box.y - _pdfViewerController.scrollOffset.dy) *
-            _pdfViewerController.zoomLevel,
-        box.width * _pdfViewerController.zoomLevel,
-        box.height * _pdfViewerController.zoomLevel,
-      ),
-      resizable: true,
-      allowFlippingWhileResizing: false,
-      flip: Flip.none,
-      onChanged: (result, event) {
-        setState(() {
-          box = box.copyWith(
-            x: (result.rect.left / _pdfViewerController.zoomLevel) +
-                _pdfViewerController.scrollOffset.dx,
-            y: (result.rect.top / _pdfViewerController.zoomLevel) +
-                _pdfViewerController.scrollOffset.dy,
-            width: result.rect.width / _pdfViewerController.zoomLevel,
-            height: result.rect.height / _pdfViewerController.zoomLevel,
-            pageNumber: _pdfViewerController.pageNumber,
-          );
-        });
-      },
-      contentBuilder: (context, rect, flip) => const DecoratedBoxWidget(),
-      visibleHandles: const {...HandlePosition.corners},
-      cornerHandleBuilder: (context, handle) =>
-          CornerHandlerWidget(handle: handle),
     );
   }
 }
