@@ -34,6 +34,12 @@ dependencies:
   # RxDart
   rxdart: ^0.28.0
 
+  # Database
+  sqflite: ^2.4.1
+
+  # Ads 
+  google_mobile_ads: ^5.2.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
