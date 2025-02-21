@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:testkey/custom_camera/custom_pin.dart';
 
 import 'overlay_widget.dart';
 
@@ -57,17 +58,25 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
           const SizedBox(width: 10.0)
         ],
       ),
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          Center(
-            child: Image.file(
-              imageFiles.isNotEmpty ? imageFiles[currentIndex] : File(''),
-              fit: BoxFit.cover,
+      body: InteractiveViewer(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Center(
+              child: Image.file(
+                imageFiles.isNotEmpty ? imageFiles[currentIndex] : File(''),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          const DraggableOverlayWidget(),
-        ],
+            const DraggableOverlayWidget(),
+            const DraggablePinWidget(
+              label: '5-01',
+            ),
+            const DraggablePinWidget(
+              label: '5-07',
+            )
+          ],
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
         height: 120,
