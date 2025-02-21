@@ -2,106 +2,139 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:testkey/custom_camera/overlay_widget.dart';
+
+import 'overlay_widget.dart';
 
 class ImageViewerScreen extends StatefulWidget {
   const ImageViewerScreen({super.key});
 
   @override
-  _ImageViewerScreenState createState() => _ImageViewerScreenState();
+  State<ImageViewerScreen> createState() => _ImageViewerScreenState();
 }
 
 class _ImageViewerScreenState extends State<ImageViewerScreen> {
-  List<File> imageFiles = []; // Danh sách ảnh đã chụp
-  int currentIndex = 0; // Vị trí ảnh hiện tại
+  List<File> imageFiles = [];
+  int currentIndex = 0;
+  Color selectedColor = Colors.red; // Màu vẽ mặc định
 
   @override
   void initState() {
     super.initState();
-    _loadCapturedPhotos(); // Gọi hàm lấy danh sách ảnh khi vào màn hình
+    _loadCapturedPhotos();
   }
 
-  /// 🖼 **Lấy danh sách ảnh từ thư mục `camerawesome/`**
   Future<void> _loadCapturedPhotos() async {
-    final directory = await getTemporaryDirectory(); // Lấy thư mục Cache
+    final directory = await getTemporaryDirectory();
     final String path = '${directory.path}/camerawesome';
 
     final dir = Directory(path);
     if (await dir.exists()) {
       List<File> images = dir
-          .listSync() // Lấy danh sách file
-          .whereType<File>() // Lọc ra chỉ lấy file
-          .where((file) => file.path.endsWith('.jpg') || file.path.endsWith('.png')) // Lọc file ảnh
+          .listSync()
+          .whereType<File>()
+          .where((file) =>
+              file.path.endsWith('.jpg') || file.path.endsWith('.png'))
           .toList();
 
       setState(() {
-        imageFiles = images.reversed.toList(); // Ảnh mới nhất hiển thị trước
+        imageFiles = images.reversed.toList();
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (imageFiles.isEmpty) {
-      return Scaffold(
-        backgroundColor: Colors.black,
-        appBar: AppBar(
-          backgroundColor: Colors.blue[900],
-          title: const Text('Xem ảnh'),
-        ),
-        body: const Center(
-          child: Text('Chưa có ảnh nào!', style: TextStyle(color: Colors.white)),
-        ),
-      );
-    }
-
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.blue[900],
-        title: const Text('Xem ảnh'),
+        actions: [
+          TextButton(
+            onPressed: () {},
+            child: const Text('Done',
+                style: TextStyle(color: Colors.white, fontSize: 18)),
+          ),
+          const SizedBox(width: 10.0)
+        ],
       ),
       body: Stack(
         alignment: Alignment.center,
         children: [
-          // 📸 Hiển thị ảnh hiện tại
           Center(
             child: Image.file(
-              imageFiles[currentIndex],
+              imageFiles.isNotEmpty ? imageFiles[currentIndex] : File(''),
               fit: BoxFit.cover,
             ),
           ),
-
-          // 🔙 Nút quay lại ảnh trước
-          if (currentIndex > 0)
-            Positioned(
-              left: 10,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 30),
-                onPressed: () {
-                  setState(() {
-                    currentIndex--;
-                  });
-                },
-              ),
-            ),
-
-          // 🔜 Nút sang ảnh tiếp theo
-          if (currentIndex < imageFiles.length - 1)
-            Positioned(
-              right: 10,
-              child: IconButton(
-                icon: const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 30),
-                onPressed: () {
-                  setState(() {
-                    currentIndex++;
-                  });
-                },
-              ),
-            ),
-            const DraggableOverlayWidget(),
+          const DraggableOverlayWidget(),
         ],
       ),
+      bottomNavigationBar: BottomAppBar(
+        height: 120,
+        color: Colors.blue[900],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildColorButton(Colors.red),
+                  _buildColorButton(Colors.yellow),
+                  _buildColorButton(Colors.green),
+                  _buildColorButton(Colors.cyan),
+                  _buildColorButton(Colors.blue),
+                  _buildColorButton(Colors.purple),
+                  _buildColorButton(Colors.pink),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildToolButton(Icons.brush, "Bút vẽ", () {}),
+                _buildToolButton(Icons.arrow_forward, "Mũi tên", () {}),
+                _buildToolButton(Icons.crop, "Cắt ảnh", () {}),
+                _buildToolButton(Icons.text_fields, "Thêm chữ", () {}),
+                _buildToolButton(Icons.delete, "Xóa", () {}),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 🎨 **Nút chọn màu vẽ**
+  Widget _buildColorButton(Color color) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedColor = color;
+        });
+      },
+      child: Container(
+        width: 20,
+        height: 20,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: selectedColor == color
+              ? Border.all(color: Colors.white, width: 3)
+              : null,
+        ),
+      ),
+    );
+  }
+
+  /// 🛠 **Nút công cụ chỉnh sửa**
+  Widget _buildToolButton(
+      IconData icon, String tooltip, VoidCallback onPressed) {
+    return IconButton(
+      icon: Icon(icon, color: Colors.white, size: 28),
+      tooltip: tooltip,
+      onPressed: onPressed,
     );
   }
 }
