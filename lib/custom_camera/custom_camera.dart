@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:testkey/custom_camera/image_viewer_screen.dart';
+import 'package:testkey/custom_camera/photo_count.dart';
 
 class CustomUiExample3 extends StatefulWidget {
   const CustomUiExample3({super.key});
@@ -32,20 +33,6 @@ class _CustomUiExample3State extends State<CustomUiExample3> {
       ),
       body: CameraAwesomeBuilder.custom(
         builder: (cameraState, preview) {
-          // cameraState.captureState$.listen((capture) {
-          //   if (capture != null) {
-          //     String filePath = capture.captureRequest.when(
-          //       single: (single) => single.file!.path,
-          //       multiple: (multiple) =>
-          //           multiple.fileBySensor.values.first!.path,
-          //     );
-
-          //     setState(() {
-          //       capturedPhotos.add(filePath); // Thêm ảnh vào danh sách
-          //     });
-          //   }
-          // });
-
           return cameraState.when(
             onPreparingCamera: (state) =>
                 const Center(child: CircularProgressIndicator()),
@@ -85,7 +72,7 @@ class TakePhotoUI extends StatelessWidget {
                 _buildCaptureButton(state),
                 Row(
                   children: [
-                    _buildFlashButton(),
+                    _buildFlashButton(state),
                     _buildImageButton(context),
                   ],
                 ),
@@ -112,7 +99,10 @@ class TakePhotoUI extends StatelessWidget {
               multiple.fileBySensor.values.first?.path ?? '',
         );
 
+        getPhotoCount();
+
         if (filePath.isEmpty) return _buildEmptyGalleryPlaceholder();
+
         return FutureBuilder<bool>(
           future: File(filePath).exists(),
           builder: (context, fileExists) {
@@ -153,10 +143,9 @@ class TakePhotoUI extends StatelessWidget {
                               ? [capture]
                               : []), // Lưu danh sách ảnh
                       builder: (context, snapshot) {
-                        int photoCount = snapshot.data?.length ?? 0;
-                        return Text(
-                          '$photoCount',
-                          style: const TextStyle(
+                        return const Text(
+                          '25',
+                          style: TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                           ),
@@ -211,23 +200,20 @@ class TakePhotoUI extends StatelessWidget {
     return IconButton(
       onPressed: () {
         print('Đã ấn vào image');
-        if (capturedPhotos.isNotEmpty) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ImageViewerScreen(
-                images: capturedPhotos, // Truyền danh sách ảnh
+              builder: (context) => const ImageViewerScreen(
               ),
             ),
           );
-        }
       },
       icon: const Icon(Icons.photo_library, color: Colors.white, size: 30),
     );
   }
 
   /// ⚡ **Nút bật/tắt flash**
-  Widget _buildFlashButton() {
+  Widget _buildFlashButton(PhotoCameraState state) {
     return IconButton(
       icon: const Icon(Icons.flash_on, color: Colors.white, size: 30),
       onPressed: () {

@@ -1,32 +1,65 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:testkey/custom_camera/overlay_widget.dart';
 
 class ImageViewerScreen extends StatefulWidget {
-  final List<String> images;
-
-  const ImageViewerScreen({super.key, required this.images});
+  const ImageViewerScreen({super.key});
 
   @override
   _ImageViewerScreenState createState() => _ImageViewerScreenState();
 }
 
 class _ImageViewerScreenState extends State<ImageViewerScreen> {
-  int currentIndex = 0; // Ảnh hiện tại
+  List<File> imageFiles = []; // Danh sách ảnh đã chụp
+  int currentIndex = 0; // Vị trí ảnh hiện tại
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCapturedPhotos(); // Gọi hàm lấy danh sách ảnh khi vào màn hình
+  }
+
+  /// 🖼 **Lấy danh sách ảnh từ thư mục `camerawesome/`**
+  Future<void> _loadCapturedPhotos() async {
+    final directory = await getTemporaryDirectory(); // Lấy thư mục Cache
+    final String path = '${directory.path}/camerawesome';
+
+    final dir = Directory(path);
+    if (await dir.exists()) {
+      List<File> images = dir
+          .listSync() // Lấy danh sách file
+          .whereType<File>() // Lọc ra chỉ lấy file
+          .where((file) => file.path.endsWith('.jpg') || file.path.endsWith('.png')) // Lọc file ảnh
+          .toList();
+
+      setState(() {
+        imageFiles = images.reversed.toList(); // Ảnh mới nhất hiển thị trước
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (imageFiles.isEmpty) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.blue[900],
+          title: const Text('Xem ảnh'),
+        ),
+        body: const Center(
+          child: Text('Chưa có ảnh nào!', style: TextStyle(color: Colors.white)),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.blue[900],
         title: const Text('Xem ảnh'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Done', style: TextStyle(color: Colors.white)),
-          ),
-        ],
       ),
       body: Stack(
         alignment: Alignment.center,
@@ -34,9 +67,8 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
           // 📸 Hiển thị ảnh hiện tại
           Center(
             child: Image.file(
-              File(widget.images[currentIndex]),
-              fit: BoxFit.contain,
-              width: double.infinity,
+              imageFiles[currentIndex],
+              fit: BoxFit.cover,
             ),
           ),
 
@@ -55,7 +87,7 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
             ),
 
           // 🔜 Nút sang ảnh tiếp theo
-          if (currentIndex < widget.images.length - 1)
+          if (currentIndex < imageFiles.length - 1)
             Positioned(
               right: 10,
               child: IconButton(
@@ -67,6 +99,7 @@ class _ImageViewerScreenState extends State<ImageViewerScreen> {
                 },
               ),
             ),
+            const DraggableOverlayWidget(),
         ],
       ),
     );
