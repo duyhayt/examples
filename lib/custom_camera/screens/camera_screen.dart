@@ -2,17 +2,17 @@ import 'dart:io';
 
 import 'package:camerawesome/camerawesome_plugin.dart';
 import 'package:flutter/material.dart';
-import 'package:testkey/custom_camera/image_viewer_screen.dart';
-import 'package:testkey/custom_camera/photo_count.dart';
+import 'package:testkey/custom_camera/helpers/photo_count.dart';
+import 'package:testkey/custom_camera/screens/image_viewer_screen.dart';
 
-class CustomUiExample3 extends StatefulWidget {
-  const CustomUiExample3({super.key});
+class CameraScreen extends StatefulWidget {
+  const CameraScreen({super.key});
 
   @override
-  State<CustomUiExample3> createState() => _CustomUiExample3State();
+  State<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CustomUiExample3State extends State<CustomUiExample3> {
+class _CameraScreenState extends State<CameraScreen> {
   List<String> capturedPhotos = [];
   @override
   Widget build(BuildContext context) {

@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:testkey/custom_camera/custom_pin.dart';
+import 'package:testkey/custom_camera/custom/custom_pin.dart';
 
-import 'overlay_widget.dart';
+import '../widgets/overlay_widget.dart';
 
 class ImageViewerScreen extends StatefulWidget {
   const ImageViewerScreen({super.key});

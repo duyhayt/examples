@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:testkey/custom_camera/custom_camera.dart';
-import 'package:testkey/custom_camera/photo_count.dart';
+import 'package:testkey/custom_camera/helpers/photo_count.dart';
+import 'package:testkey/custom_camera/screens/camera_screen.dart';
 
 void main() {
   runApp(
@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const CustomUiExample3(),
+      home: const CameraScreen(),
     );
   }
 }
